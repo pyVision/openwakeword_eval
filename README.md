@@ -1,61 +1,78 @@
-# Readme
+# OpenWakeWord Evaluation and Adversarial Data Generation
 
-This repository contains text-to-speech (TTS) models and utilities designed produce synthetic training datasets for other speech-related models (e.g., [openWakeWord](https://github.com/dscripka/openWakeWord)).
+This repository evaluates the OpenWakeWord engine's performance in creating custom wake words . This repository is the fork of synthetic speech dataset generation repository by OpenWakeWord, available at `https://github.com/dscripka/synthetic_speech_dataset_generation` and users some scripts from `https://github.com/dscripka/openWakeWord`
 
-It includes two specific open-source TTS models that I have found to be useful when generating synthetic speech. Specifically:
+## Table of Contents
 
-- [Nvidia Waveglow](https://github.com/NVIDIA/waveglow)
-- [VITS](https://github.com/jaywalnut310/vits)
+- [Introduction](#introduction)
+- [Setup](#setup)
+- [Generating Adversarial Text](#generating-adversarial-text)
+- [Generating Synthetic Speech](#generating-synthetic-speech)
+- [Evaluating OpenWakeWord Engine](#evaluating-openwakeword-engine)
+- [References](#references)
 
-Note that the code in this repository varies greatly in quality and structure as it was derived from multiple sources. It is primarily meant for research and experimentation, and you are encouraged to makes changes and updates before relying on this code for production purposes. Also, these models are only trained on English TTS datasets (VCTK and LibriTTS), and will not produce accurate speech for other languages.
+## Introduction
 
-# Installation
+We focus on generating adversarial synthetic data to test the engine's robustness. Adversarial data includes words that sound phonetically similar to the wake word, which helps assess false accept and reject rates.
 
-First clone this repository:
+## Setup
+
+1. **Clone the Repository**:
+
+    ```bash
+    git clone https://github.com/yourusername/openwakeword-evaluation.git
+    cd openwakeword-evaluation
+    ```
+
+2. **Set Up Virtual Environment**:
+
+    ```bash
+    pip3 install virtualenv
+    virtualenv venv
+    source venv/bin/activate
+    ```
+
+3. **Install Dependencies**:
+
+    ```bash
+    pip3 install -r requirements.txt
+    apt-get install espeak
+    ```
+
+4. ## Generating Adversarial Text
+
+### Command to Run:
 
 ```bash
-git clone https://github.com/dscripka/synthetic_speech_dataset_generation
+python generate_adversarial_text.py "hey mycroft" 1 adversarial_texts.txt
+```
+5. ## Generating Synthetic Speech
+
+Command to Run:
+```
+python3 generate_speech.py --model VITS --input_file adversarial_texts.txt --n_speakers 100 --output_dir aout --max_per_speaker 5
 ```
 
-Then install the requirements into your virtual environment of choice:
+6. ## Evaluating OpenWakeWord Engine
 
-```bash
-pip install -r requirements.txt
+Command to Run:
+```
+python3 wakeword_test.py about
 ```
 
-If installing in an environment with GPUs available, you will need to update `requirements.txt` to include versions of Torch compatible with your GPU configuration. Note that while it is possible to generate data on CPUs only, the WAVEGLOW model will be very slow (e.g., 5-10 seconds per generation). The VITS model is somewhat faster on CPU (~1-3 seconds per generation), but for the large amounts of data generation that is often needed to train robust models, a GPU is *strongly* recommended.
-
-The TTS models themselves are not stored in this repository and need to be downloaded separately. There is an included script that will download the files and place them in the appropriate location within the repository.
-
-```bash
-python download_tts_models.py
+Results :
+```
+False accepts are 3.0 %
+Details of false accepts:
+{'aout/1d4f5a333c4c49279b59e350054da39c.wav': 5}
+{'aout/bdb669a443d249408eeee25ed5005c95.wav': 2}
+{'aout/8f1f817fb995479ab8389aa499159a8e.wav': 4}
+{'aout/972975ef4ace498aa2d122a523c05487.wav': 5}
+{'aout/e3e9868f9996451fb495194bb944d63b.wav': 3}
+{'aout/8af19950c9904b8cb98b91ccdcee2785.wav': 4}
 ```
 
-To test that everything is working correctly after these steps, use this command and listen to the output in the `generated_clips` directory that is created:
+References
 
-```bash
-python generate_clips.py --model VITS --text "This is some test speech" --N 1 --output_dir generated_clips
-```
-
-# Usage
-
-The primary way to generate synthetic speech is via the CLI in `generate_clips.py`. To see all of the possible arguments, use `python generate_clips.py --help`.
-
-As a quick example of usage, the following command will generate 5000 clips of the phrase "turn on the office lights" using the Nvidia Waveglow model (on a GPU) trained on the LibriTTS dataset. Additionally, the `--max_per_speaker` argument will limit the number of generations for each of the ~2300 LibriTTS training voices to 1, and after that limit is reached a random voice will be created by [spherical interpolation](https://en.wikipedia.org/wiki/Slerp) of random speaker embeddings.
-
-```
-python generate_clips.py \
-    --model WAVEGLOW \
-    --enable_gpu \
-    --text "turn on the office lights" \
-    --N 5000 \
-    --max_per_speaker 1 \
-    --output_dir /path/to/output/directory
-```
-
-# License
-
-The `generate_clips.py` code in this repository is licensed under Apache 2.0. The included TTS models (and the associated code from the source repos) have their own licenses, and you are strongly encouraged to review the original repositories to determine if the license is appropriate for a given use-case.
-
-- [Nvidia Waveglow](https://github.com/NVIDIA/waveglow)
-- [VITS](https://github.com/jaywalnut310/vits)
+	•	OpenWakeWord GitHub Repository
+	•	Synthetic Speech Dataset Generation Repository
