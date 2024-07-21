@@ -45,9 +45,9 @@ requiredNamed.add_argument("--speaking_speed", metavar='', type=float, default=1
                            for the WAVEGLOW model, the clips is adjusted after generation with librisa.effects.time_stretch.""")
 
 
-# Get random words
-# en_words = open(os.path.join("data", "20k.txt"), "r").readlines()
-# en_words = [i.strip() for i in en_words][0:10000]
+#Get random words
+en_words = open(os.path.join("data", "20k.txt"), "r").readlines()
+en_words = [i.strip() for i in en_words][0:10000]
 
 # Parse arguments
 args = parser.parse_args()

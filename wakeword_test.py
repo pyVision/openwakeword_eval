@@ -26,8 +26,9 @@ def main(samples_path):
     # `bulk_predict` returns the prediction score for each frame of the audio
     prediction = bulk_predict(
         file_paths = file_path_list,
-        wakeword_models = ["hey mycroft"],
-        ncpu = 8 # Number of CPU cores to use for parallel processing
+        wakeword_models = ["models/hey_miko_200_checkpoint_Big_DNN_2s_July17.onnx"],
+        inference_framework="onnx",
+        ncpu = 14 # Number of CPU cores to use for parallel processing
     )
 
     total_count = 0 # Initialize total count of processed files
@@ -39,8 +40,9 @@ def main(samples_path):
         total_count += 1 # Increment the total count
         # Iterate through the prediction values for each file
         for v in value:
+            #print(v)
             # Check if the prediction score for "hey_mycroft_v0.1" exceeds the threshold (0.8)
-            if v["hey_mycroft_v0.1"] > 0.8:
+            if v["hey_miko_model16"] > 0.8:
                 count += 1
         # If any false accepts are found for a file, add it to the list
         if count > 0:
@@ -49,10 +51,7 @@ def main(samples_path):
     # Print the percentage of files with false accepts
     print("False accepts are", len(false_accepts) * 100 / total_count, "%")
     
-    # Print details of all false accepts
-    print("Details of false accepts:")
-    for false_accept in false_accepts:
-        print(false_accept)
+    return false_accepts,total_count
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
@@ -60,4 +59,18 @@ if __name__ == "__main__":
         sys.exit(1)
     
     samples_path = sys.argv[1]
-    main(samples_path)
+
+    rootdir_glob = samples_path+"/*"  # Note the added asterisks for recursive search
+
+    # Get a list of absolute file paths for all files found using the glob pattern
+    file_path_list = [f for f in iglob(rootdir_glob, recursive=False) if os.path.isdir(f)]
+
+    print("file_path_list",file_path_list)
+    d=[]
+    for k in file_path_list:
+        print("processing",k)
+        fa,total_count=main(k)
+        print("results",len(fa),total_count)
+        d.append({"dataset":k,"FA":len(fa),"total":total_count})
+
+    print("results are ",d)
