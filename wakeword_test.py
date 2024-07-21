@@ -26,9 +26,8 @@ def main(samples_path):
     # `bulk_predict` returns the prediction score for each frame of the audio
     prediction = bulk_predict(
         file_paths = file_path_list,
-        wakeword_models = ["models/hey_miko_200_checkpoint_Big_DNN_2s_July17.onnx"],
-        inference_framework="onnx",
-        ncpu = 14 # Number of CPU cores to use for parallel processing
+        wakeword_models = ["hey_mycroft"],
+        ncpu = 1 # Number of CPU cores to use for parallel processing
     )
 
     total_count = 0 # Initialize total count of processed files
@@ -42,7 +41,7 @@ def main(samples_path):
         for v in value:
             #print(v)
             # Check if the prediction score for "hey_mycroft_v0.1" exceeds the threshold (0.8)
-            if v["hey_miko_model16"] > 0.8:
+            if v["hey_mycroft_v0.1"] > 0.8:
                 count += 1
         # If any false accepts are found for a file, add it to the list
         if count > 0:
